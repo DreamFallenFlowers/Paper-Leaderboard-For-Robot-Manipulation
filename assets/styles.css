@@ -167,6 +167,10 @@ select {
   box-shadow: var(--shadow);
 }
 
+.suggestion-list[hidden] {
+  display: none;
+}
+
 .suggestion-item {
   appearance: none;
   min-height: 34px;

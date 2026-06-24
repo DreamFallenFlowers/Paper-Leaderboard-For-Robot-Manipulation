@@ -1,5 +1,3 @@
-const PAGE_SIZE = 100;
-
 const state = {
   papers: [],
   filtered: [],
@@ -10,7 +8,6 @@ const state = {
   exclude: [],
   invalid: [],
   sort: "total_score",
-  visible: PAGE_SIZE,
   stats: null,
   suggestions: [],
   suggestionEntries: [],
@@ -29,10 +26,8 @@ const ui = {
   tagCount: document.querySelector("#tag-count"),
   resultsSummary: document.querySelector("#results-summary"),
   resultsBody: document.querySelector("#results-body"),
-  showMoreButton: document.querySelector("#show-more-button"),
   clearButton: document.querySelector("#clear-button"),
   shareButton: document.querySelector("#share-button"),
-  tagSuggestions: document.querySelector("#tag-suggestions"),
   suggestionList: document.querySelector("#suggestion-list"),
 };
 
@@ -335,9 +330,8 @@ function renderTagCloud() {
 }
 
 function renderResults() {
-  const visibleRows = state.filtered.slice(0, state.visible);
   ui.resultsBody.innerHTML = "";
-  visibleRows.forEach((paper, index) => {
+  state.filtered.forEach((paper, index) => {
     const row = document.createElement("tr");
     row.innerHTML = `
       <td>${formatRank(paper, index)}</td>
@@ -357,7 +351,6 @@ function renderResults() {
   });
 
   ui.resultsSummary.textContent = `${formatNumber(state.filtered.length)} matching papers`;
-  ui.showMoreButton.hidden = state.visible >= state.filtered.length;
 }
 
 function formatRank(paper, index) {
@@ -397,7 +390,6 @@ function escapeHtml(value) {
 }
 
 function refresh() {
-  state.visible = PAGE_SIZE;
   ui.queryInput.value = composeQuery(state.include, state.exclude);
   hideSuggestions();
   filterAndSort();
@@ -426,12 +418,6 @@ async function init() {
   state.stats = stats;
   state.tagByNorm = Object.fromEntries(tags.map((tag) => [normalizeKey(tag.label), tag.label]));
   buildSuggestionEntries();
-
-  tags.forEach((tag) => {
-    const option = document.createElement("option");
-    option.value = tag.label;
-    ui.tagSuggestions.appendChild(option);
-  });
 
   applyUrlState();
   renderMeta();
@@ -490,11 +476,6 @@ async function init() {
     filterAndSort();
     renderResults();
     syncUrl();
-  });
-
-  ui.showMoreButton.addEventListener("click", () => {
-    state.visible += PAGE_SIZE;
-    renderResults();
   });
 
   ui.clearButton.addEventListener("click", () => {
