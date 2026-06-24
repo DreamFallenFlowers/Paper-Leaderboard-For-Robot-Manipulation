@@ -1,0 +1,119 @@
+﻿<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Robot Manipulation Knowledge Base</title>
+    <meta
+      name="description"
+      content="Static leaderboard for robot manipulation papers with keyword-composition filtering."
+    />
+    <link rel="stylesheet" href="./assets/styles.css?v=20260625-1" />
+  </head>
+  <body>
+    <header class="topbar">
+      <div class="shell topbar-inner">
+        <div>
+          <p class="eyebrow">Robot Manipulation Knowledge Base</p>
+          <h1>Paper Leaderboard</h1>
+        </div>
+        <div class="meta" id="site-meta"></div>
+      </div>
+    </header>
+
+    <main>
+      <section class="control-band">
+        <div class="shell layout">
+          <aside class="control-panel">
+            <form id="query-form" class="query-form">
+              <label class="field">
+                <span>Keyword Query</span>
+                <div class="suggest-input">
+                  <input
+                    id="query-input"
+                    name="q"
+                    type="text"
+                    list="tag-suggestions"
+                    placeholder='VLA + reinforcement learning - survey'
+                    autocomplete="off"
+                  />
+                  <div id="suggestion-list" class="suggestion-list" hidden></div>
+                </div>
+              </label>
+              <datalist id="tag-suggestions"></datalist>
+
+              <div class="toolbar">
+                <label class="field compact">
+                  <span>Sort</span>
+                  <select id="sort-select" name="sort">
+                    <option value="total_score">Overall Score</option>
+                    <option value="hot_score">Hot Score</option>
+                    <option value="published_date">Newest</option>
+                  </select>
+                </label>
+                <div class="toolbar-actions">
+                  <button type="submit" class="button primary">Apply</button>
+                  <button type="button" id="clear-button" class="button">Clear</button>
+                  <button type="button" id="share-button" class="button">Share</button>
+                </div>
+              </div>
+            </form>
+
+            <div class="query-state">
+              <div>
+                <h2>Include</h2>
+                <div id="include-chips" class="chip-row"></div>
+              </div>
+              <div>
+                <h2>Exclude</h2>
+                <div id="exclude-chips" class="chip-row"></div>
+              </div>
+              <p id="query-errors" class="status error" hidden></p>
+            </div>
+
+            <div class="tag-section">
+              <div class="section-heading">
+                <h2>Popular Tags</h2>
+                <span id="tag-count" class="counter"></span>
+              </div>
+              <div id="tag-cloud" class="tag-cloud"></div>
+            </div>
+          </aside>
+
+          <section class="results-panel">
+            <div class="results-header">
+              <div>
+                <h2>Results</h2>
+                <p id="results-summary" class="status"></p>
+              </div>
+            </div>
+
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Rank</th>
+                    <th>Title</th>
+                    <th>Published</th>
+                    <th>Citations</th>
+                    <th class="nowrap">Overall Score</th>
+                    <th class="nowrap">Hot Score</th>
+                    <th>Keywords</th>
+                  </tr>
+                </thead>
+                <tbody id="results-body"></tbody>
+              </table>
+            </div>
+
+            <div class="results-footer">
+              <button type="button" id="show-more-button" class="button">Show More</button>
+            </div>
+          </section>
+        </div>
+      </section>
+    </main>
+
+    <script type="module" src="./assets/app.js?v=20260625-1"></script>
+  </body>
+  </html>
+
