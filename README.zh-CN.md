@@ -2,7 +2,7 @@
 
 一个可搜索、可更新、可组合筛选的 robot manipulation 论文排行榜，用来更快地找到真正重要的工作。
 
-[主页地址](https://dreamfallenflowers.github.io/Paper-Leaderboard-For-Robot-Manipulation/) · [English README](./README.md)
+[项目主页](https://dreamfallenflowers.github.io/Paper-Leaderboard-For-Robot-Manipulation/) · [English](./README.md)
 
 ## 快速信息
 
@@ -15,7 +15,7 @@
 
 ## 为什么要做这个项目
 
-robot manipulation 的论文增长得太快了。
+具身智能的论文增长得太快了。
 
 真正重要的想法，散落在成千上万篇论文里；值得跟踪的路线，常常被论文数量本身淹没；一个方向到底是“已经成为主流”，还是“刚刚开始爆发”，靠肉眼追论文很难判断。
 
@@ -32,7 +32,7 @@ robot manipulation 的论文增长得太快了。
 本仓库追踪 **2023-01-01** 以来，arXiv 上与 **robot manipulation** 相关的论文。
 
 - 论文发现来源：**arXiv**
-- 引用量来源：**Google Scholar** 缓存结果
+- 引用量来源：**Google Scholar** 
 - 关键词来源：**自动抽取工作流**
 
 ## 三种排行方式
@@ -51,12 +51,7 @@ robot manipulation 的论文增长得太快了。
 
 ## 关键词筛选
 
-当前榜单包含 **76 个关键词**。
-
-你可以在搜索框里自由组合：
-
-- `a + b`
-- `a + b - c`
+当前榜单包含 **76 个关键词**（自动抽取 + 人为设计），你可以在搜索框里自由组合关键词
 
 例如：
 
@@ -66,7 +61,7 @@ robot manipulation 的论文增长得太快了。
 
 这意味着你可以非常快地筛出自己真正想看的细分方向排行。
 
-## 关于关键词的重要说明
+## 关于关键词的说明
 
 本项目的关键词抽取策略是**刻意保守**的。
 
@@ -100,7 +95,7 @@ robot manipulation 的论文增长得太快了。
 
 本仓库包含最终发布产物：
 
-- `data/papers.min.json`：网页使用的精简论文数据
+- `data/papers.min.json`：网页使用的论文数据
 - `data/tags.json`：关键词统计
 - `data/aliases.json`：搜索别名映射
 - `data/stats.json`：站点元信息
@@ -112,4 +107,4 @@ robot manipulation 的论文增长得太快了。
 
 本榜单会 **每月更新一次**。
 
-与此同时，我也会在 **一周内** 开源整套工作流，方便你直接复用这套方法，制作你自己领域的 paper leaderboard。
+与此同时，将在 **一周内** 开源整套工作流，方便任何人直接复用这套方法，制作特定领域的 paper leaderboard，我衷心希望这将帮助更多地人并且欢迎更多人加入共建。

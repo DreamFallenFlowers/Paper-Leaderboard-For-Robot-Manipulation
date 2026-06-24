@@ -126,6 +126,7 @@ function splitQueryForSuggestion(input) {
 function buildSuggestionEntries() {
   const entries = [];
   const seen = new Set();
+  const validCanonicals = new Set(state.tags.map((tag) => tag.label));
 
   for (const tag of state.tags) {
     const normalized = normalizeKey(tag.label);
@@ -137,6 +138,7 @@ function buildSuggestionEntries() {
 
   for (const [alias, canonical] of Object.entries(state.aliasMap)) {
     if (!alias || !canonical) continue;
+    if (!validCanonicals.has(canonical)) continue;
     const key = `${alias}=>${canonical}`;
     if (seen.has(key)) continue;
     entries.push({
@@ -154,7 +156,7 @@ function rankSuggestions(fragment) {
   const norm = normalizeKey(fragment);
   if (!norm) return [];
   const starts = [];
-  const includes = [];
+  const tokenStarts = [];
   const used = new Set();
   for (const entry of state.suggestionEntries) {
     const rawNorm = normalizeKey(entry.raw);
@@ -164,14 +166,18 @@ function rankSuggestions(fragment) {
         starts.push(entry);
         used.add(entry.canonical);
       }
-    } else if (rawNorm.includes(norm)) {
+      continue;
+    }
+
+    const tokens = rawNorm.split(/\s+/).filter(Boolean);
+    if (tokens.some((token) => token.startsWith(norm))) {
       if (!used.has(entry.canonical)) {
-        includes.push(entry);
+        tokenStarts.push(entry);
         used.add(entry.canonical);
       }
     }
   }
-  return [...starts, ...includes].slice(0, 8);
+  return [...starts, ...tokenStarts].slice(0, 8);
 }
 
 function renderSuggestions() {
