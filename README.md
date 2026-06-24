@@ -2,7 +2,7 @@
 
 A searchable, updateable, and composable leaderboard for robot manipulation papers, built to help you find the work that truly matters.
 
-[Homepage](https://dreamfallenflowers.github.io/Paper-Leaderboard-For-Robot-Manipulation/) · [中文 README](./README.zh-CN.md)
+[Homepage](https://dreamfallenflowers.github.io/Paper-Leaderboard-For-Robot-Manipulation/) · [中文](./README.zh-CN.md)
 
 ## Quick Facts
 
@@ -17,9 +17,11 @@ A searchable, updateable, and composable leaderboard for robot manipulation pape
 
 Embodied AI papers are growing too fast.
 
+We believe that, compared with social-media hype, hard citation counts carry more weight.
+
 Important ideas are scattered across thousands of papers. Valuable research directions are often buried under sheer volume. It is hard to tell whether a topic has already become mainstream or is just beginning to explode if you are only tracking papers manually.
 
-This project is built to compress that chaos into something actually useful: a field map, a trend detector, and a leaderboard that helps you surface the papers worth paying attention to.
+Built on that belief, this project is meant to be a genuinely useful tool: a field compass, a trend detector, and a leaderboard that helps you surface the papers worth paying attention to.
 
 ## Homepage
 
