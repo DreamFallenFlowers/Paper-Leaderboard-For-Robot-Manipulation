@@ -1,4 +1,4 @@
-# Robot Manipulation Knowledge Base
+# Paper Leaderboard For Robot Manipulation
 
 A searchable, updateable, and composable leaderboard for robot manipulation papers, built to help you find the work that truly matters.
 

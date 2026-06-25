@@ -1,4 +1,4 @@
-# Robot Manipulation Knowledge Base
+# Paper Leaderboard For Robot Manipulation
 
 一个可搜索、可更新、可组合筛选的 robot manipulation 论文排行榜，用来更快地找到真正重要的工作。
 
