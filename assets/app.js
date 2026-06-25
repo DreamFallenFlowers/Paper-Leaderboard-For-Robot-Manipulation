@@ -1,6 +1,7 @@
 const state = {
   papers: [],
   filtered: [],
+  visible: [],
   tags: [],
   aliasMap: {},
   tagByNorm: {},
@@ -12,6 +13,12 @@ const state = {
   suggestions: [],
   suggestionEntries: [],
   activeSuggestion: -1,
+  virtual: {
+    rowHeight: 96,
+    overscan: 8,
+    scrollTop: 0,
+  },
+  renderQueued: false,
 };
 
 const ui = {
@@ -25,6 +32,7 @@ const ui = {
   tagCloud: document.querySelector("#tag-cloud"),
   tagCount: document.querySelector("#tag-count"),
   resultsSummary: document.querySelector("#results-summary"),
+  resultsViewport: document.querySelector(".table-wrap"),
   resultsBody: document.querySelector("#results-body"),
   clearButton: document.querySelector("#clear-button"),
   shareButton: document.querySelector("#share-button"),
@@ -272,6 +280,10 @@ function filterAndSort() {
   });
 
   state.filtered = sorted;
+  state.virtual.scrollTop = 0;
+  if (ui.resultsViewport) {
+    ui.resultsViewport.scrollTop = 0;
+  }
 }
 
 function renderMeta() {
@@ -335,9 +347,31 @@ function renderTagCloud() {
   });
 }
 
+function estimateVirtualWindow() {
+  const total = state.filtered.length;
+  const viewport = ui.resultsViewport?.clientHeight || 640;
+  const rowHeight = state.virtual.rowHeight;
+  const visibleCount = Math.max(1, Math.ceil(viewport / rowHeight));
+  const start = Math.max(0, Math.floor(state.virtual.scrollTop / rowHeight) - state.virtual.overscan);
+  const end = Math.min(total, start + visibleCount + state.virtual.overscan * 2);
+  return { start, end, total };
+}
+
 function renderResults() {
+  state.renderQueued = false;
+  const { start, end, total } = estimateVirtualWindow();
+  const topPadding = start * state.virtual.rowHeight;
+  const bottomPadding = Math.max(0, (total - end) * state.virtual.rowHeight);
+
   ui.resultsBody.innerHTML = "";
-  state.filtered.forEach((paper, index) => {
+
+  if (topPadding > 0) {
+    ui.resultsBody.appendChild(makeSpacerRow(topPadding));
+  }
+
+  state.visible = state.filtered.slice(start, end);
+  state.visible.forEach((paper, offset) => {
+    const index = start + offset;
     const row = document.createElement("tr");
     row.innerHTML = `
       <td>${formatRank(paper, index)}</td>
@@ -356,7 +390,32 @@ function renderResults() {
     ui.resultsBody.appendChild(row);
   });
 
+  if (bottomPadding > 0) {
+    ui.resultsBody.appendChild(makeSpacerRow(bottomPadding));
+  }
+
   ui.resultsSummary.textContent = `${formatNumber(state.filtered.length)} matching papers`;
+}
+
+function scheduleRenderResults() {
+  if (state.renderQueued) return;
+  state.renderQueued = true;
+  window.requestAnimationFrame(() => {
+    renderResults();
+  });
+}
+
+function makeSpacerRow(height) {
+  const row = document.createElement("tr");
+  row.setAttribute("aria-hidden", "true");
+  row.className = "spacer-row";
+  const cell = document.createElement("td");
+  cell.colSpan = 7;
+  cell.style.height = `${height}px`;
+  cell.style.padding = "0";
+  cell.style.border = "0";
+  row.appendChild(cell);
+  return row;
 }
 
 function formatRank(paper, index) {
@@ -497,6 +556,15 @@ async function init() {
     copyShareLink().catch(() => {
       ui.resultsSummary.textContent = `${formatNumber(state.filtered.length)} matching papers`;
     });
+  });
+
+  ui.resultsViewport?.addEventListener("scroll", () => {
+    state.virtual.scrollTop = ui.resultsViewport.scrollTop;
+    scheduleRenderResults();
+  });
+
+  window.addEventListener("resize", () => {
+    scheduleRenderResults();
   });
 }
 

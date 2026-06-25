@@ -107,6 +107,9 @@ h2 {
 
 .results-panel {
   overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  min-height: calc(100vh - 220px);
 }
 
 .query-form,
@@ -293,6 +296,8 @@ select {
 
 .table-wrap {
   overflow: auto;
+  flex: 1;
+  min-height: 0;
 }
 
 table {
@@ -328,6 +333,15 @@ tbody tr + tr td {
 
 tbody tr:hover {
   background: rgba(15, 118, 110, 0.03);
+}
+
+.spacer-row:hover {
+  background: transparent;
+}
+
+.spacer-row td {
+  padding: 0 !important;
+  border: 0 !important;
 }
 
 th:nth-child(1),
@@ -405,6 +419,7 @@ td:nth-child(8) {
 
   .table-wrap {
     max-height: none;
+    min-height: 60vh;
   }
 }
 
