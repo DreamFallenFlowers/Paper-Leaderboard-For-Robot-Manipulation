@@ -8,7 +8,7 @@
       name="description"
       content="Static leaderboard for robot manipulation papers with keyword-composition filtering."
     />
-    <link rel="stylesheet" href="./assets/styles.css?v=20260625-1" />
+    <link rel="stylesheet" href="./assets/styles.css?v=20260629-2" />
   </head>
   <body>
     <header class="topbar">
@@ -55,7 +55,37 @@
                   <button type="button" id="share-button" class="button">Share</button>
                 </div>
               </div>
+
+              <div class="date-range">
+                <label class="field compact">
+                  <span>Start At</span>
+                  <div class="date-input">
+                    <input id="date-from" name="from" type="text" inputmode="numeric" placeholder="YYYY-MM-DD" autocomplete="off" />
+                    <button type="button" class="date-trigger" data-date-target="date-from" aria-label="Open calendar">📅</button>
+                  </div>
+                </label>
+                <label class="field compact">
+                  <span>End At</span>
+                  <div class="date-input">
+                    <input id="date-to" name="to" type="text" inputmode="numeric" placeholder="YYYY-MM-DD" autocomplete="off" />
+                    <button type="button" class="date-trigger" data-date-target="date-to" aria-label="Open calendar">📅</button>
+                  </div>
+                </label>
+              </div>
             </form>
+
+            <div id="date-picker" class="date-picker" hidden>
+              <div class="date-picker-header">
+                <button type="button" id="date-prev" class="date-nav" aria-label="Previous month">‹</button>
+                <div id="date-title" class="date-title"></div>
+                <button type="button" id="date-next" class="date-nav" aria-label="Next month">›</button>
+              </div>
+              <div id="date-weekdays" class="date-weekdays"></div>
+              <div id="date-grid" class="date-grid"></div>
+              <div class="date-picker-footer">
+                <button type="button" id="date-clear" class="button">Clear</button>
+              </div>
+            </div>
 
             <div class="query-state">
               <div>
@@ -108,7 +138,7 @@
       </section>
     </main>
 
-    <script type="module" src="./assets/app.js?v=20260625-1"></script>
+    <script type="module" src="./assets/app.js?v=20260629-2"></script>
   </body>
   </html>
 

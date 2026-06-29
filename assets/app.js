@@ -9,6 +9,8 @@ const state = {
   exclude: [],
   invalid: [],
   sort: "total_score",
+  dateFrom: "",
+  dateTo: "",
   stats: null,
   suggestions: [],
   suggestionEntries: [],
@@ -26,6 +28,16 @@ const ui = {
   form: document.querySelector("#query-form"),
   queryInput: document.querySelector("#query-input"),
   sortSelect: document.querySelector("#sort-select"),
+  dateFrom: document.querySelector("#date-from"),
+  dateTo: document.querySelector("#date-to"),
+  dateTriggers: document.querySelectorAll(".date-trigger"),
+  datePicker: document.querySelector("#date-picker"),
+  dateTitle: document.querySelector("#date-title"),
+  datePrev: document.querySelector("#date-prev"),
+  dateNext: document.querySelector("#date-next"),
+  dateWeekdays: document.querySelector("#date-weekdays"),
+  dateGrid: document.querySelector("#date-grid"),
+  dateClear: document.querySelector("#date-clear"),
   includeChips: document.querySelector("#include-chips"),
   excludeChips: document.querySelector("#exclude-chips"),
   queryErrors: document.querySelector("#query-errors"),
@@ -237,13 +249,112 @@ function formatScore(value) {
   return Number(value || 0).toFixed(3);
 }
 
+function isValidDateInput(value) {
+  return !value || /^\d{4}-\d{2}-\d{2}$/.test(value);
+}
+
+const datePickerState = {
+  target: null,
+  anchor: null,
+  year: 0,
+  month: 0,
+};
+
+const WEEKDAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+
+function formatDateParts(year, month, day) {
+  return `${String(year).padStart(4, "0")}-${String(month + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
+}
+
+function parseDateValue(value) {
+  if (!isValidDateInput(value) || !value) return null;
+  const [year, month, day] = value.split("-").map(Number);
+  return { year, month: month - 1, day };
+}
+
+function openDatePicker(targetInput, anchorButton) {
+  const parsed = parseDateValue(targetInput.value);
+  const today = new Date();
+  datePickerState.target = targetInput;
+  datePickerState.anchor = anchorButton;
+  datePickerState.year = parsed?.year ?? today.getFullYear();
+  datePickerState.month = parsed?.month ?? today.getMonth();
+  renderDatePicker();
+  positionDatePicker();
+  ui.datePicker.hidden = false;
+}
+
+function closeDatePicker() {
+  ui.datePicker.hidden = true;
+  datePickerState.target = null;
+  datePickerState.anchor = null;
+}
+
+function positionDatePicker() {
+  if (!datePickerState.anchor) return;
+  const rect = datePickerState.anchor.getBoundingClientRect();
+  const top = rect.bottom + 8;
+  const left = Math.max(16, rect.left - 220);
+  ui.datePicker.style.top = `${top}px`;
+  ui.datePicker.style.left = `${left}px`;
+}
+
+function renderDatePicker() {
+  ui.dateTitle.textContent = `${MONTHS[datePickerState.month]} ${datePickerState.year}`;
+  ui.dateWeekdays.innerHTML = WEEKDAYS.map((day) => `<div>${day}</div>`).join("");
+
+  const firstDay = new Date(datePickerState.year, datePickerState.month, 1);
+  const startOffset = firstDay.getDay();
+  const daysInMonth = new Date(datePickerState.year, datePickerState.month + 1, 0).getDate();
+  const selected = parseDateValue(datePickerState.target?.value || "");
+
+  ui.dateGrid.innerHTML = "";
+
+  for (let index = 0; index < 42; index += 1) {
+    const cell = document.createElement("button");
+    cell.type = "button";
+    cell.className = "date-cell";
+    const dayNumber = index - startOffset + 1;
+    if (dayNumber < 1 || dayNumber > daysInMonth) {
+      cell.disabled = true;
+      cell.classList.add("muted");
+      cell.textContent = "";
+    } else {
+      const value = formatDateParts(datePickerState.year, datePickerState.month, dayNumber);
+      cell.textContent = String(dayNumber);
+      cell.dataset.value = value;
+      if (
+        selected &&
+        selected.year === datePickerState.year &&
+        selected.month === datePickerState.month &&
+        selected.day === dayNumber
+      ) {
+        cell.classList.add("selected");
+      }
+      cell.addEventListener("click", () => {
+        if (!datePickerState.target) return;
+        datePickerState.target.value = value;
+        closeDatePicker();
+      });
+    }
+    ui.dateGrid.appendChild(cell);
+  }
+}
+
 function applyUrlState() {
   const params = new URLSearchParams(window.location.search);
   const query = params.get("q") || "";
   const sort = params.get("sort") || "total_score";
+  const dateFrom = params.get("from") || "";
+  const dateTo = params.get("to") || "";
   ui.queryInput.value = query;
   ui.sortSelect.value = sort;
+  ui.dateFrom.value = dateFrom;
+  ui.dateTo.value = dateTo;
   state.sort = sort;
+  state.dateFrom = dateFrom;
+  state.dateTo = dateTo;
   const parsed = parseQuery(query);
   state.include = parsed.include;
   state.exclude = parsed.exclude;
@@ -259,6 +370,12 @@ function syncUrl() {
   if (state.sort !== "total_score") {
     params.set("sort", state.sort);
   }
+  if (state.dateFrom) {
+    params.set("from", state.dateFrom);
+  }
+  if (state.dateTo) {
+    params.set("to", state.dateTo);
+  }
   const next = `${window.location.pathname}${params.toString() ? `?${params}` : ""}`;
   window.history.replaceState({}, "", next);
 }
@@ -266,6 +383,9 @@ function syncUrl() {
 function filterAndSort() {
   const filtered = state.papers.filter((paper) => {
     const keywords = new Set(paper.keywords);
+    const published = paper.published_date || "";
+    if (state.dateFrom && (!published || published < state.dateFrom)) return false;
+    if (state.dateTo && (!published || published > state.dateTo)) return false;
     return state.include.every((tag) => keywords.has(tag)) && !state.exclude.some((tag) => keywords.has(tag));
   });
 
@@ -300,9 +420,17 @@ function renderQueryState() {
   state.include.forEach((tag) => ui.includeChips.appendChild(makeFilterChip(tag, "include")));
   state.exclude.forEach((tag) => ui.excludeChips.appendChild(makeFilterChip(tag, "exclude")));
 
-  if (state.invalid.length) {
+  const dateError = !isValidDateInput(state.dateFrom) || !isValidDateInput(state.dateTo);
+  if (state.invalid.length || dateError) {
     ui.queryErrors.hidden = false;
-    ui.queryErrors.textContent = `Unrecognized tags: ${state.invalid.join(", ")}`;
+    const messages = [];
+    if (state.invalid.length) {
+      messages.push(`Unrecognized tags: ${state.invalid.join(", ")}`);
+    }
+    if (dateError) {
+      messages.push("Date format must be YYYY-MM-DD");
+    }
+    ui.queryErrors.textContent = messages.join(" · ");
   } else {
     ui.queryErrors.hidden = true;
     ui.queryErrors.textContent = "";
@@ -456,7 +584,14 @@ function escapeHtml(value) {
 
 function refresh() {
   ui.queryInput.value = composeQuery(state.include, state.exclude);
+  state.dateFrom = ui.dateFrom.value.trim();
+  state.dateTo = ui.dateTo.value.trim();
   hideSuggestions();
+  if (!isValidDateInput(state.dateFrom) || !isValidDateInput(state.dateTo)) {
+    renderQueryState();
+    syncUrl();
+    return;
+  }
   filterAndSort();
   renderQueryState();
   renderResults();
@@ -536,6 +671,52 @@ async function init() {
     window.setTimeout(hideSuggestions, 120);
   });
 
+  ui.dateTriggers.forEach((button) => {
+    button.addEventListener("click", () => {
+      const target = document.querySelector(`#${button.dataset.dateTarget}`);
+      if (!target) return;
+      if (!ui.datePicker.hidden && datePickerState.target === target) {
+        closeDatePicker();
+        return;
+      }
+      openDatePicker(target, button);
+    });
+  });
+
+  [ui.dateFrom, ui.dateTo].forEach((input) => {
+    input.addEventListener("focus", () => {
+      const trigger = document.querySelector(`.date-trigger[data-date-target="${input.id}"]`);
+      if (trigger) {
+        openDatePicker(input, trigger);
+      }
+    });
+  });
+
+  ui.datePrev.addEventListener("click", () => {
+    datePickerState.month -= 1;
+    if (datePickerState.month < 0) {
+      datePickerState.month = 11;
+      datePickerState.year -= 1;
+    }
+    renderDatePicker();
+  });
+
+  ui.dateNext.addEventListener("click", () => {
+    datePickerState.month += 1;
+    if (datePickerState.month > 11) {
+      datePickerState.month = 0;
+      datePickerState.year += 1;
+    }
+    renderDatePicker();
+  });
+
+  ui.dateClear.addEventListener("click", () => {
+    if (datePickerState.target) {
+      datePickerState.target.value = "";
+    }
+    closeDatePicker();
+  });
+
   ui.sortSelect.addEventListener("change", () => {
     state.sort = ui.sortSelect.value;
     filterAndSort();
@@ -548,7 +729,11 @@ async function init() {
     state.exclude = [];
     state.invalid = [];
     state.sort = "total_score";
+    state.dateFrom = "";
+    state.dateTo = "";
     ui.sortSelect.value = "total_score";
+    ui.dateFrom.value = "";
+    ui.dateTo.value = "";
     refresh();
   });
 
@@ -565,6 +750,17 @@ async function init() {
 
   window.addEventListener("resize", () => {
     scheduleRenderResults();
+    if (!ui.datePicker.hidden) {
+      positionDatePicker();
+    }
+  });
+
+  document.addEventListener("mousedown", (event) => {
+    if (ui.datePicker.hidden) return;
+    const target = event.target;
+    if (ui.datePicker.contains(target)) return;
+    if (target.closest(".date-input")) return;
+    closeDatePicker();
   });
 }
 
