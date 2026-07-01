@@ -1,5 +1,7 @@
 # Paper Leaderboard For Robot Manipulation
 
+The full pipeline is now open-sourced. Follow [DreamFallenFlowers/Paper-Leaderboard-For-You](https://github.com/DreamFallenFlowers/Paper-Leaderboard-For-You).
+
 A searchable, updateable, and composable leaderboard for robot manipulation papers, built to help you find the work that truly matters.
 
 [Homepage](https://dreamfallenflowers.github.io/Paper-Leaderboard-For-Robot-Manipulation/) · [中文](./README.zh-CN.md)

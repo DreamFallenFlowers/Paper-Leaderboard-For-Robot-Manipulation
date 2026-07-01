@@ -1,5 +1,7 @@
 # Paper Leaderboard For Robot Manipulation
 
+制作流程现已开源，欢迎关注 [DreamFallenFlowers/Paper-Leaderboard-For-You](https://github.com/DreamFallenFlowers/Paper-Leaderboard-For-You)。
+
 一个可搜索、可更新、可组合筛选的 robot manipulation 论文排行榜，用来更快地找到真正重要的工作。
 
 [项目主页](https://dreamfallenflowers.github.io/Paper-Leaderboard-For-Robot-Manipulation/) · [English](./README.md)
